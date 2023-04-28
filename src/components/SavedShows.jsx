@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { UserAuth } from '../context/AuthContext'
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md'
+import { AiOutlineClose } from 'react-icons/ai'
 import { db } from '../firebase'
 import { updateDoc, doc, onSnapshot } from 'firebase/firestore'
 
@@ -21,6 +22,18 @@ const SavedShows = () => {
           setMovies(doc.data()?.savedShow) 
         })
     }, [user?.email])
+
+    const movieRef = doc(db, 'users', `${user?.email}`)
+    const deleteShow = async (passedID) => {
+        try {
+           const result = movies.filter((item) => item.id !== passedID) 
+           await updateDoc(movieRef, {
+            savedShow: result
+           })
+        } catch (error) {
+            console.log(error)
+        }
+    }
   return (
     <>
      <h2 className="text-white font-bold md:text-xl p-4">My Shows</h2>
@@ -32,6 +45,7 @@ const SavedShows = () => {
                  <img src={`https://image.tmdb.org/t/p/w500/${item?.img}`} alt={item?.title} className='w-full h-auto block' />
                  <div className="absolute top-0 left-0 w-full h-full hover:bg-black/80 hover:opacity-100 opacity-0 text-white">
                      <p className='white-space-normal text-xs md:text-sm font-bold flex justify-center items-center h-full text-center'>{item?.title}</p>
+                     <p onClick={() => deleteShow(item.id)} className='absolute text-gray-300 right-4 top-4'><AiOutlineClose/></p>
                      </div>
                      
              </div>
